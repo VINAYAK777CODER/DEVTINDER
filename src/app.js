@@ -5,8 +5,28 @@ const app = express();
 // 🟠 Step 2: Middleware to check admin token for all /admin routes
 const { adminAuth, userAuth } = require("./middlewares/auth");
 app.use("/admin", adminAuth);
-
-
+app.use("/",(err,req,res,next)=>{
+  if(err)
+  {
+    res.status(500).send("Something Went wrong");
+  }
+})
+app.get("/getUser",(req,res)=>{
+  throw new Error("error aa gaya hai");
+  res.send("user Data sent");
+//  try{ throw new Error("error aa gaya hai");
+//   res.send("user Data sent");}
+  // catch(err)
+  // {
+  //   res.status(500).send("some error contact support team")
+  // }
+})
+app.use("/",(err,req,res,next)=>{
+  if(err)
+  {
+    res.status(500).send("Something Went wrong");
+  }
+})
 app.post("/user/login", (req, res) => {
   res.send("user successfully logged in");
 });
