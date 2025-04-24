@@ -1,15 +1,31 @@
-
 // 🟢 Step 1: Import Express and initialize app
 const express = require("express");
 const app = express();
 
 // 🟠 Step 2: Middleware to check admin token for all /admin routes
-const {adminAuth,userAuth}=require("./middlewares/auth")
+const { adminAuth, userAuth } = require("./middlewares/auth");
 app.use("/admin", adminAuth);
 
-app.get("/user",userAuth,(req,res)=>{
-  res.send("user Data is send")
-})
+
+app.post("/user/login", (req, res) => {
+  res.send("user successfully logged in");
+});
+// Exclude /user/login by applying middleware to a path pattern
+
+
+// Login route (no auth needed)
+app.get("/user/login", (req, res) => {
+  res.send("Login route - no auth required");
+});
+
+// All other user routes (auth required)
+app.get("/user/profile",userAuth, (req, res) => {
+  res.send("Protected User Profile");
+});
+
+app.get("/user/settings",userAuth, (req, res) => {
+  res.send("Protected User Settings");
+});
 
 
 // 🟢 Step 3: Route - GET /admin/getAllData
@@ -26,8 +42,6 @@ app.get("/admin/deleteUser", (req, res) => {
 app.listen(3000, () => {
   console.log("🚀 Server is successfully listening on port 3000...");
 });
-
-
 
 // // Express.js: Understanding app.use(), app.get(), and app.post()
 
@@ -108,7 +122,6 @@ app.listen(3000, () => {
 //   console.log(req.params)
 //   res.send(`👤 User ID requested: ${userId}`);
 // });
-
 
 // // ========== DASHBOARD / HOME ROUTE ========== //
 
