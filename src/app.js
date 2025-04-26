@@ -3,19 +3,16 @@ const app = express();
 const connectDB = require("./config/database");
 const User = require("./models/user"); // capital U for model is better practice
 
-// Middleware to parse JSON body
-app.use(express.json());
+// Middleware to parse JSON body-beacause server se json data aa raha hai
+app.use(express.json()); 
 
 // ✅ Creating POST API for signup
 app.post("/signup", async (req, res) => {
+  console.log(req.body);
   try {
     // creating a new instance of the User model
-    const newUser = new User({
-      firstName: "Vinayak",
-      lastName: "Keshri",
-      emailId: "vkk@gmail.com",
-      password: "chal@nikal1234"
-    });
+    
+    const newUser = new User(req.body);
 
     // most mongoose functions return a promise, so use async/await
     await newUser.save(); // Save this user into the MongoDB database
