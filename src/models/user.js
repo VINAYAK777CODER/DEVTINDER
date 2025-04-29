@@ -34,7 +34,6 @@ const userSchema = new mongoose.Schema(
           throw new Error("maximum 10 skills allowed");
         }
       },
-    
     },
   },
   { timestamps: true }

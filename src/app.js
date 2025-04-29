@@ -8,23 +8,30 @@ app.use(express.json());
 
 // ✅ Creating POST API for signup
 app.post("/signup", async (req, res) => {
-  console.log(req.body);
   try {
-    // creating a new instance of the User model
+    const { firstName, lastName, emailId, password, age, gender, photo_url, about, skills } = req.body;
 
-    const newUser = new User(req.body);
+    const newUser = new User({ firstName, lastName, emailId, password, age, gender, photo_url, about, skills });
 
-    // most mongoose functions return a promise, so use async/await
     await newUser.save();
 
-    // Save this user into the MongoDB database
+    res.status(201).json({ message: "User registered successfully!" });
 
-    res.status(201).send("User registered successfully!");
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Error in user registration");
+    console.error("Signup Error:", error.message);
+
+    if (error.name === "ValidationError") {
+      return res.status(400).json({ error: error.message });
+    }
+
+    if (error.code === 11000) {
+      return res.status(409).json({ error: "Email already exists" });
+    }
+
+    res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 // ✅ get user by email
 
@@ -59,43 +66,90 @@ app.get("/delete", async (req, res) => {
 // API -/feed - to get all the users from the database
 app.get("/feed", async (req, res) => {
   try {
-    const allUser = await User.find({});
-    res.send(allUser);
+    // Fetch all users from the database
+    const allUsers = await User.find({});
+
+    // If no users are found, send a custom message with a 404 status
+    if (allUsers.length === 0) {
+      return res.status(404).json({ message: "No users found" });
+    }
+
+    // Return the users in a structured JSON format with a success status
+    res.status(200).json({
+      status: "success",
+      message: "Users fetched successfully",
+      data: allUsers,
+    });
   } catch (err) {
-    res.status(500).send("Server error: " + err.message);
+    // Handle any server-side errors
+    console.error(err);
+    res.status(500).json({
+      status: "error",
+      message: "Server error: " + err.message,
+    });
   }
 });
 
+
 // update the data from the user
-app.patch("/userUpdate/:userId",async (req,res)=>{
-  try{
-    const userId=req.params?.userId;
-    const data=req.body;
-    const ALLOWED_UPDATES=["skills","photo_url","about","gender"]
-    const isUpdateAllowed=Object.keys(data).every((k)=>ALLOWED_UPDATES.includes(k))
-    if(data?.skills?.length>10)
-    {
-      throw new Error("maximum 10 skills allowed")
-    }
-    if(!isUpdateAllowed)
-    {
-      throw new Error("update not allowed")
-    }
-    // const updatedUser= await User.findByIdAndUpdate({_id:userId},data);
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      data,
-      { runValidators: true, new: true } // so that validate function used in schema also work for updation not jsut when new user enterd
+app.patch("/userUpdate/:userId", async (req, res) => {
+  try {
+    const userId = req.params?.userId;
+    const data = req.body;
+
+    // Allowed fields to update
+    const ALLOWED_UPDATES = ["skills", "photo_url", "about", "gender"];
+
+    // Check if only allowed fields are being updated
+    const isUpdateAllowed = Object.keys(data).every((key) =>
+      ALLOWED_UPDATES.includes(key)
     );
 
-    res.send("user Updated Sucessfully ")
+    if (!isUpdateAllowed) {
+      return res.status(400).json({
+        status: "error",
+        message: "Invalid fields for update. Only 'skills', 'photo_url', 'about', and 'gender' can be updated.",
+      });
+    }
 
+    // Check if skills array exceeds the limit of 10
+    if (data?.skills && data.skills.length > 10) {
+      return res.status(400).json({
+        status: "error",
+        message: "Maximum 10 skills are allowed.",
+      });
+    }
+
+    // Perform the update with validation
+    const updatedUser = await User.findByIdAndUpdate(userId, data, {
+      runValidators: true,
+      new: true, // Return the updated user
+    });
+
+    // Check if the user is found and updated
+    if (!updatedUser) {
+      return res.status(404).json({
+        status: "error",
+        message: "User not found.",
+      });
+    }
+
+    // Return successful response
+    res.status(200).json({
+      status: "success",
+      message: "User updated successfully.",
+      data: updatedUser,
+    });
+  } catch (err) {
+    // Handle any unexpected errors
+    console.error(err);
+    res.status(500).json({
+      status: "error",
+      message: "Server error: " + err.message,
+    });
   }
-  catch (err) {
-    res.status(500).send("update failed: " + err.message);
-  }
-}
-)
+});
+
 
 // ✅ First connect to the database, then start listening
 connectDB()
