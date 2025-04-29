@@ -44,7 +44,6 @@ app.get("/user", async (req, res) => {
   }
 });
 
-
 // api to find by id and delete the user
 app.get("/delete", async (req, res) => {
   try {
@@ -57,7 +56,6 @@ app.get("/delete", async (req, res) => {
   }
 });
 
-
 // API -/feed - to get all the users from the database
 app.get("/feed", async (req, res) => {
   try {
@@ -69,10 +67,20 @@ app.get("/feed", async (req, res) => {
 });
 
 // update the data from the user
-app.patch("/userUpdate",async (req,res)=>{
+app.patch("/userUpdate/:userId",async (req,res)=>{
   try{
-    const userId=req.body.userId;
+    const userId=req.params?.userId;
     const data=req.body;
+    const ALLOWED_UPDATES=["skills","photo_url","about","gender"]
+    const isUpdateAllowed=Object.keys(data).every((k)=>ALLOWED_UPDATES.includes(k))
+    if(data?.skills?.length>10)
+    {
+      throw new Error("maximum 10 skills allowed")
+    }
+    if(!isUpdateAllowed)
+    {
+      throw new Error("update not allowed")
+    }
     // const updatedUser= await User.findByIdAndUpdate({_id:userId},data);
     const updatedUser = await User.findByIdAndUpdate(
       userId,
@@ -84,7 +92,7 @@ app.patch("/userUpdate",async (req,res)=>{
 
   }
   catch (err) {
-    res.status(500).send("Server error: " + err.message);
+    res.status(500).send("update failed: " + err.message);
   }
 }
 )
