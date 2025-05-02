@@ -2,6 +2,9 @@ const express = require("express");
 const app = express();
 const connectDB = require("./config/database");
 const User = require("./models/user"); // capital U for model is better practice
+const { validatesignupData } = require("./utils/validation");
+const bcrypt = require("bcrypt");
+const user = require("./models/user");
 
 // Middleware to parse JSON body-beacause server se json data aa raha hai
 app.use(express.json());
@@ -9,16 +12,41 @@ app.use(express.json());
 // ✅ Creating POST API for signup
 app.post("/signup", async (req, res) => {
   try {
-    const { firstName, lastName, emailId, password, age, gender, photo_url, about, skills } = req.body;
+    // validating the data
+    validatesignupData(req);
 
-    const newUser = new User({ firstName, lastName, emailId, password, age, gender, photo_url, about, skills });
+    // encrypting the password
+    const {
+      firstName,
+      lastName,
+      emailId,
+      password,
+      age,
+      gender,
+      photo_url,
+      about,
+      skills,
+    } = req.body;
 
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: hashedPassword,
+      age,
+      gender,
+      photo_url,
+      about,
+      skills,
+    });
     await newUser.save();
 
     res.status(201).json({ message: "User registered successfully!" });
-
   } catch (error) {
-    console.error("Signup Error:", error.message);
+    // console.error("Signup Error:", error.message);
 
     if (error.name === "ValidationError") {
       return res.status(400).json({ error: error.message });
@@ -28,7 +56,28 @@ app.post("/signup", async (req, res) => {
       return res.status(409).json({ error: "Email already exists" });
     }
 
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: error.message });
+  }
+});
+
+//login
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+
+    const user = await User.findOne({ emailId: emailId });
+    if (!user) {
+      throw new Error("Invalid Credentials");// never say Email is not valid
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (isPasswordValid) {
+      res.send("Login Successfully");
+    } else {
+      throw new Error("Invalid Credentials");
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -90,7 +139,6 @@ app.get("/feed", async (req, res) => {
   }
 });
 
-
 // update the data from the user
 app.patch("/userUpdate/:userId", async (req, res) => {
   try {
@@ -108,7 +156,8 @@ app.patch("/userUpdate/:userId", async (req, res) => {
     if (!isUpdateAllowed) {
       return res.status(400).json({
         status: "error",
-        message: "Invalid fields for update. Only 'skills', 'photo_url', 'about', and 'gender' can be updated.",
+        message:
+          "Invalid fields for update. Only 'skills', 'photo_url', 'about', and 'gender' can be updated.",
       });
     }
 
@@ -149,7 +198,6 @@ app.patch("/userUpdate/:userId", async (req, res) => {
     });
   }
 });
-
 
 // ✅ First connect to the database, then start listening
 connectDB()
