@@ -1,5 +1,9 @@
+// Importing required modules
 const mongoose = require("mongoose");
-// defining a schema
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+
+// Defining the user schema with validation and default values
 const userSchema = new mongoose.Schema(
   {
     firstName: { type: String, required: true, minLength: 3, maxLength: 30 }, // for string minLength is used and for number min is used
@@ -36,8 +40,30 @@ const userSchema = new mongoose.Schema(
       },
     },
   },
-  { timestamps: true }
+  { timestamps: true } // Automatically adds createdAt and updatedAt timestamps
 );
+
+// Instance method to generate JWT token for the user
+userSchema.methods.getJWT = async function () {
+  // you can't use here arrow function ,reason find out youself
+  const user = this;
+  const token = await jwt.sign({ _id: user._id }, "mySecr$tk@y1", {
+    expiresIn: "1D",
+  });
+  return token;
+};
+
+// Instance method to validate user's password using bcrypt
+userSchema.methods.validatePassword = async function (passwordInputByUser) {
+  const user = this;
+  const hashPassword = user.password;
+  const isPasswordValid = bcrypt.compare(passwordInputByUser, hashPassword);
+  return isPasswordValid;
+};
+
+// Creating a model from the schema
 const user = mongoose.model("User", userSchema);
+
+// Exporting the model for use in other parts of the application
 module.exports = user;
 // or module.exports=mongoose.model("User",userSchema);

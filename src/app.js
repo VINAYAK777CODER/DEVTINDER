@@ -5,7 +5,7 @@ const User = require("./models/user"); // capital U for model is better practice
 const { validatesignupData } = require("./utils/validation");
 const bcrypt = require("bcrypt");
 const user = require("./models/user");
-const jwt = require('jsonwebtoken');
+// const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const { userAuth } = require("./middlewares/auth");
 app.use(cookieParser());
@@ -75,9 +75,10 @@ app.post("/login", async (req, res) => {
       throw new Error("Invalid Credentials");
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await user.validatePassword(password);
     if (isPasswordValid) {
-      const token = jwt.sign({ _id: user._id }, "mySecr$tk@y1",{expiresIn:"1D"},);
+      const token = await user.getJWT();
+
 
       res.cookie("token", token, {
         expires: new Date(Date.now() + 8 * 3600000),
