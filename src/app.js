@@ -5,6 +5,11 @@ const User = require("./models/user"); // capital U for model is better practice
 const { validatesignupData } = require("./utils/validation");
 const bcrypt = require("bcrypt");
 const user = require("./models/user");
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+const { userAuth } = require("./middlewares/auth");
+app.use(cookieParser());
+
 
 // Middleware to parse JSON body-beacause server se json data aa raha hai
 app.use(express.json());
@@ -65,13 +70,21 @@ app.post("/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
 
-    const user = await User.findOne({ emailId: emailId });
+    const user = await User.findOne({ emailId });
     if (!user) {
-      throw new Error("Invalid Credentials");// never say Email is not valid
+      throw new Error("Invalid Credentials");
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
+      const token = jwt.sign({ _id: user._id }, "mySecr$tk@y1",{expiresIn:"1D"},);
+
+      res.cookie("token", token, {
+        expires: new Date(Date.now() + 8 * 3600000),
+        httpOnly: true, // secure option for auth cookies
+        sameSite: "strict", // prevents CSRF
+      });
+
       res.send("Login Successfully");
     } else {
       throw new Error("Invalid Credentials");
@@ -80,6 +93,33 @@ app.post("/login", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// profile
+app.get("/profile", userAuth, async (req, res) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    res.send(user);
+  } catch (error) {
+    res.status(401).json({ error: error.message });
+  }
+});
+// sending the connection request
+app.post("/sentConnectionRequest",userAuth,(req,res)=>{
+ try{ const user=req.user;
+  console.log("sending the connection request");
+  res.send(user.firstName +" "+"has send the connection request");}
+  catch(error)
+  {
+    res.status(401).json({error:error.message});
+  }
+
+})
+
 
 
 // ✅ get user by email

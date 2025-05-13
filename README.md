@@ -116,3 +116,14 @@ A full journey from initializing a repo to building APIs with validation and aut
 - ✅ Created `POST /login` API
 - ✅ Compared hashed passwords
 - ✅ Handled login errors (invalid email/password)
+
+
+-install cookie-parser
+-just send a dummy cookie to the user
+-create GET/ profile API and checks if you get the cookie back
+-install jsonwebtoken
+- in login API ,after email and password validation,create a jwt token and send it to user in cookie
+- read the cookie inside your profile API and find the logged in user
+- user auth middleware
+- added the user auth middleware in profile api and made the sent connection api
+- cookie and token expiry feature added
