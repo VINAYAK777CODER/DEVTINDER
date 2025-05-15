@@ -128,3 +128,5 @@ A full journey from initializing a repo to building APIs with validation and aut
 - added the user auth middleware in profile api and made the sent connection api
 - cookie and token expiry feature added
 - Added JWT and password validation methods to User schema
+- created the routes folder for for managing the auth,profile,requests
+- created authRouter,profileRouter,requestsRouter

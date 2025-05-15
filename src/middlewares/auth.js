@@ -3,7 +3,7 @@ const User = require("../models/user");
 
 const userAuth = async (req, res, next) => {
   try {
-    const { token } = req.cookies; // FIXED: token, not tokens
+    const { token } = req.cookies; 
     if (!token) {
       throw new Error("Token not found");
     }
