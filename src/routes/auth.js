@@ -1,8 +1,8 @@
-const express=require("express")
-const authRouter=express.Router();
+const express = require("express");
+const authRouter = express.Router();
 const bcrypt = require("bcrypt");
 const { validatesignupData } = require("../utils/validation");
-const User=require("../models/user")
+const User = require("../models/user");
 
 //signup
 authRouter.post("/signup", async (req, res) => {
@@ -55,7 +55,6 @@ authRouter.post("/signup", async (req, res) => {
   }
 });
 
-
 //login
 
 authRouter.post("/login", async (req, res) => {
@@ -71,7 +70,6 @@ authRouter.post("/login", async (req, res) => {
     if (isPasswordValid) {
       const token = await user.getJWT();
 
-
       res.cookie("token", token, {
         expires: new Date(Date.now() + 8 * 3600000),
         httpOnly: true, // secure option for auth cookies
@@ -86,4 +84,21 @@ authRouter.post("/login", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-module.exports=authRouter;
+module.exports = authRouter;
+
+// logout api
+
+authRouter.post("/logout", (req, res) => {
+  res.cookie("token", null, {
+    httpOnly: true,
+    secure: true, // true in production with HTTPS
+    sameSite: "Strict",
+    expires: new Date(0), // Expire the cookie immediately
+  });
+  res.send("Logout Sucessfull");
+  //     res.clearCookie("token", {
+  //     httpOnly: true,
+  //     secure: true, // must match with login settings
+  //     sameSite: "Strict",
+  //   })
+});

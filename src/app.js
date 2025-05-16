@@ -92,64 +92,64 @@ app.get("/feed", async (req, res) => {
 });
 
 // update the data from the user
-app.patch("/userUpdate/:userId", async (req, res) => {
-  try {
-    const userId = req.params?.userId;
-    const data = req.body;
+// app.patch("/userUpdate/:userId", async (req, res) => {
+//   try {
+//     const userId = req.params?.userId;
+//     const data = req.body;
 
-    // Allowed fields to update
-    const ALLOWED_UPDATES = ["skills", "photo_url", "about", "gender"];
+//     // Allowed fields to update
+//     const ALLOWED_UPDATES = ["skills", "photo_url", "about", "gender"];
 
-    // Check if only allowed fields are being updated
-    const isUpdateAllowed = Object.keys(data).every((key) =>
-      ALLOWED_UPDATES.includes(key)
-    );
+//     // Check if only allowed fields are being updated
+//     const isUpdateAllowed = Object.keys(data).every((key) =>
+//       ALLOWED_UPDATES.includes(key)
+//     );
 
-    if (!isUpdateAllowed) {
-      return res.status(400).json({
-        status: "error",
-        message:
-          "Invalid fields for update. Only 'skills', 'photo_url', 'about', and 'gender' can be updated.",
-      });
-    }
+//     if (!isUpdateAllowed) {
+//       return res.status(400).json({
+//         status: "error",
+//         message:
+//           "Invalid fields for update. Only 'skills', 'photo_url', 'about', and 'gender' can be updated.",
+//       });
+//     }
 
-    // Check if skills array exceeds the limit of 10
-    if (data?.skills && data.skills.length > 10) {
-      return res.status(400).json({
-        status: "error",
-        message: "Maximum 10 skills are allowed.",
-      });
-    }
+//     // Check if skills array exceeds the limit of 10
+//     if (data?.skills && data.skills.length > 10) {
+//       return res.status(400).json({
+//         status: "error",
+//         message: "Maximum 10 skills are allowed.",
+//       });
+//     }
 
-    // Perform the update with validation
-    const updatedUser = await User.findByIdAndUpdate(userId, data, {
-      runValidators: true,
-      new: true, // Return the updated user
-    });
+//     // Perform the update with validation
+//     const updatedUser = await User.findByIdAndUpdate(userId, data, {
+//       runValidators: true,
+//       new: true, // Return the updated user
+//     });
 
-    // Check if the user is found and updated
-    if (!updatedUser) {
-      return res.status(404).json({
-        status: "error",
-        message: "User not found.",
-      });
-    }
+//     // Check if the user is found and updated
+//     if (!updatedUser) {
+//       return res.status(404).json({
+//         status: "error",
+//         message: "User not found.",
+//       });
+//     }
 
-    // Return successful response
-    res.status(200).json({
-      status: "success",
-      message: "User updated successfully.",
-      data: updatedUser,
-    });
-  } catch (err) {
-    // Handle any unexpected errors
-    console.error(err);
-    res.status(500).json({
-      status: "error",
-      message: "Server error: " + err.message,
-    });
-  }
-});
+//     // Return successful response
+//     res.status(200).json({
+//       status: "success",
+//       message: "User updated successfully.",
+//       data: updatedUser,
+//     });
+//   } catch (err) {
+//     // Handle any unexpected errors
+//     console.error(err);
+//     res.status(500).json({
+//       status: "error",
+//       message: "Server error: " + err.message,
+//     });
+//   }
+// });
 
 // ✅ First connect to the database, then start listening
 connectDB()
