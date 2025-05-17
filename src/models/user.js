@@ -6,12 +6,13 @@ const bcrypt = require("bcrypt");
 // Defining the user schema with validation and default values
 const userSchema = new mongoose.Schema(
   {
-    firstName: { type: String, required: true, minLength: 3, maxLength: 30 }, // for string minLength is used and for number min is used
+    firstName: { type: String, required: true, minLength: 3, maxLength: 30 ,indexindex: true}, // for string minLength is used and for number min is used
     lastName: { type: String },
     emailId: {
       type: String,
       unique: true,
       trim: true,
+      unique:true,
       lowercase: true,
       required: true,
     }, // should not be same

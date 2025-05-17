@@ -130,3 +130,7 @@ A full journey from initializing a repo to building APIs with validation and aut
 - Added JWT and password validation methods to User schema
 - created the routes folder for for managing the auth,profile,requests
 - created authRouter,profileRouter,requestsRouter
+- created a connection request schema
+- send connection request API
+- proper validation of data and managed the all corner cases
+- $or query $and  query in mongoose
