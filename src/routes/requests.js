@@ -18,8 +18,8 @@ requestRouter.post(
       const status = req.params.status;
 
       // ✅ Allow only specific statuses
-      const ALLOWED_STATUS = ["interested", "ignored"];
-      if (!ALLOWED_STATUS.includes(status)) {
+      const ALLOWED_STATUS_SEND = ["interested", "ignored"];
+      if (!ALLOWED_STATUS_SEND.includes(status)) {
         return res.status(400).json({ error: "Invalid request status." });
       }
 
@@ -69,5 +69,51 @@ requestRouter.post(
     }
   }
 );
+
+
+
+// @route   POST /request/review/:status/:requestId
+// @desc    Review (accept/reject) a connection request
+// @access  Protected
+requestRouter.post("/request/review/:status/:requestId", userAuth, async (req, res) => {
+  try {
+    const { status, requestId } = req.params;
+    const loggedInUser = req.user;
+
+    // ✅ Validate allowed review status
+    const ALLOWED_STATUS_REVIEW = ["accepted", "rejected"];
+    if (!ALLOWED_STATUS_REVIEW.includes(status)) {
+      return res.status(400).json({ message: "Status not allowed. Only 'accepted' or 'rejected' are valid." });
+    }
+
+    // ✅ Find the original connection request
+    const connectionRequest = await ConnectionRequest.findOne({
+      _id: requestId,
+      toUserId: loggedInUser._id,
+      status: "interested",
+    });
+
+    // ✅ Handle not found
+    if (!connectionRequest) {
+      return res.status(404).json({ message: "Connection request not found or already reviewed." });
+    }
+
+    // ✅ Update the status
+    connectionRequest.status = status;
+    const updatedRequest = await connectionRequest.save();
+
+    return res.json({
+      message: `Connection request ${status}`,
+      data: updatedRequest,
+      
+    });
+  } catch (error) {
+    console.error("Error reviewing request:", error.message);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
+
 
 module.exports = requestRouter;

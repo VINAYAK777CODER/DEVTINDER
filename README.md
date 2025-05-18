@@ -134,3 +134,5 @@ A full journey from initializing a repo to building APIs with validation and aut
 - send connection request API
 - proper validation of data and managed the all corner cases
 - $or query $and  query in mongoose
+
+- made the  api of accepted or rejected of connection request /request/review/:status/:requestId
