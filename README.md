@@ -136,3 +136,4 @@ A full journey from initializing a repo to building APIs with validation and aut
 - $or query $and  query in mongoose
 
 - made the  api of accepted or rejected of connection request /request/review/:status/:requestId
+- made the api of all accepted connection of logged in user

@@ -62,7 +62,7 @@ userSchema.methods.validatePassword = async function (passwordInputByUser) {
   return isPasswordValid;
 };
 
-// Creating a model from the schema
+// Creating a model from the schema mongoose.model("<ModelName>", schema)).
 const user = mongoose.model("User", userSchema);
 
 // Exporting the model for use in other parts of the application
