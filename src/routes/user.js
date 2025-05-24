@@ -64,6 +64,12 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
 
 userRouter.get("/feed",userAuth, async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    limit=limit>50?50:limit;
+    const toSkip = (page - 1) * limit;
+
+
 
     // users should see all the cards except 
     // 1-> his own card
@@ -95,7 +101,7 @@ userRouter.get("/feed",userAuth, async (req, res) => {
     const usersInFeed=await User.find({
       _id:{ $nin:Array.from(uniqueUsersToHide)},// not in 
     // _id:{ $ne:loggedInUSer._id} // ->id should not equal to ==> if we have to include self in this way but put both in $and
-    }).select(SAFE_USER_DATA);
+    }).select(SAFE_USER_DATA).skip(toSkip).limit(limit);
 
 
    
