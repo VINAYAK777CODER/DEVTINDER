@@ -2,6 +2,7 @@ const express=require("express");
 const { userAuth } = require("../middlewares/auth");
 const userRouter=express.Router();
 const connectionRequest =require("../models/connectionRequest")
+const User=require("../models/user")
 // ✅ Get all pending connection requests for the logged-in user
 const SAFE_USER_DATA="firstName lastName photo_url age skills about";
 
@@ -61,7 +62,57 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
   }
 });
 
+userRouter.get("/feed",userAuth, async (req, res) => {
+  try {
 
+    // users should see all the cards except 
+    // 1-> his own card
+    // 2-> his connections
+    // 3-> ignored people 
+    // 4-> already sent the connection 
+
+    const loggedInUser=req.user;
+// sent + connection users
+// first we will find the users to hide
+    const hideUsersFromFeed=await connectionRequest.find(
+      {
+        $or:[
+          {fromUserId:loggedInUser._id},
+          {toUserId:loggedInUser._id}
+        ]
+      }
+    ).select("fromUserId toUserId");
+
+    const uniqueUsersToHide=new Set();
+    hideUsersFromFeed.forEach((req)=>{
+      uniqueUsersToHide.add(req.fromUserId.toString());
+      uniqueUsersToHide.add(req.toUserId.toString());
+    })
+
+    uniqueUsersToHide.add(loggedInUser._id.toString()); // Also exclude self
+
+    // console.log(uniqueUsersToHide);
+    const usersInFeed=await User.find({
+      _id:{ $nin:Array.from(uniqueUsersToHide)},// not in 
+    // _id:{ $ne:loggedInUSer._id} // ->id should not equal to ==> if we have to include self in this way but put both in $and
+    }).select(SAFE_USER_DATA);
+
+
+   
+    res.status(200).json({
+      status: "success",
+      message: "these are on feed users",
+       data: usersInFeed,
+    });
+  } catch (err) {
+    // Handle any server-side errors
+    console.error(err);
+    res.status(500).json({
+      status: "error",
+      message: "Server error: " + err.message,
+    });
+  }
+});
 
 
 module.exports=userRouter;

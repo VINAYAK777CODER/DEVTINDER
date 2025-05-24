@@ -26,62 +26,12 @@ app.use("/",requestRouter);
 app.use("/",userRouter);
 
 
-// ✅ get user by email
 
-app.get("/user", async (req, res) => {
-  try {
-    const userEmail = req.body.emailId;
 
-    const foundUser = await User.findOne({ emailId: userEmail }); // sabse old vaala return karega if same emailId hai more than one
 
-    if (foundUser.length === 0) {
-      return res.status(404).send("User not found");
-    }
 
-    res.send(foundUser);
-  } catch (err) {
-    res.status(500).send("Server error: " + err.message);
-  }
-});
 
-// api to find by id and delete the user
-app.get("/delete", async (req, res) => {
-  try {
-    const userId = req.body.userId;
-    const restUser = await User.findByIdAndDelete({ _id: userId });
-    // const restUser=await User.findByIdAndDelete(userId);
-    res.send("user deleted successfully");
-  } catch (err) {
-    res.status(500).send("Server error: " + err.message);
-  }
-});
 
-// API -/feed - to get all the users from the database
-app.get("/feed", async (req, res) => {
-  try {
-    // Fetch all users from the database
-    const allUsers = await User.find({});
-
-    // If no users are found, send a custom message with a 404 status
-    if (allUsers.length === 0) {
-      return res.status(404).json({ message: "No users found" });
-    }
-
-    // Return the users in a structured JSON format with a success status
-    res.status(200).json({
-      status: "success",
-      message: "Users fetched successfully",
-      data: allUsers,
-    });
-  } catch (err) {
-    // Handle any server-side errors
-    console.error(err);
-    res.status(500).json({
-      status: "error",
-      message: "Server error: " + err.message,
-    });
-  }
-});
 
 // update the data from the user
 // app.patch("/userUpdate/:userId", async (req, res) => {

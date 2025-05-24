@@ -137,3 +137,5 @@ A full journey from initializing a repo to building APIs with validation and aut
 
 - made the  api of accepted or rejected of connection request /request/review/:status/:requestId
 - made the api of all accepted connection of logged in user
+
+- written the logic for get feed api
