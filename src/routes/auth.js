@@ -63,27 +63,36 @@ authRouter.post("/login", async (req, res) => {
 
     const user = await User.findOne({ emailId });
     if (!user) {
-      throw new Error("Invalid Credentials");
+      return res.status(401).json({ error: "Invalid Credentials" });
     }
 
     const isPasswordValid = await user.validatePassword(password);
-    if (isPasswordValid) {
-      const token = await user.getJWT();
-
-      res.cookie("token", token, {
-        expires: new Date(Date.now() + 8 * 3600000),
-        httpOnly: true, // secure option for auth cookies
-        sameSite: "strict", // prevents CSRF
-      });
-
-      res.send("Login Successfully");
-    } else {
-      throw new Error("Invalid Credentials");
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: "Invalid Credentials" });
     }
+
+    const token = await user.getJWT();
+
+    // Set JWT cookie
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 8 * 3600000),
+      httpOnly: true,
+      sameSite: "strict",
+    });
+
+    // Send user info (excluding password) along with token
+    const { password: pwd, ...userInfo } = user.toObject();
+
+    res.status(200).json({
+      message: "Login Successfully",
+      token,
+      user: userInfo,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
+
 module.exports = authRouter;
 
 // logout api

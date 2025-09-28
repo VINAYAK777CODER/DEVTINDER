@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema(
     lastName: { type: String },
     emailId: {
       type: String,
-      unique: true,
+      unique: true, 
       trim: true,
       unique:true,
       lowercase: true,

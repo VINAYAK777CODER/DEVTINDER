@@ -1,37 +1,37 @@
 const express = require("express");
 const app = express();
+
+const cors = require("cors");
+
+
 const connectDB = require("./config/database");
 const User = require("./models/user"); // capital U for model is better practice
 // const { validatesignupData } = require("./utils/validation");
 // const user = require("./models/user");
 // const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser');
+
+const cookieParser = require("cookie-parser");
+
 // const { userAuth } = require("./middlewares/auth");
 app.use(cookieParser());
 
-
-
+app.use(cors({
+  origin:"http://localhost:5173",
+  credentials:true,
+})); // ✅ Allow all origins
 
 // Middleware to parse JSON body-beacause server se json data aa raha hai
 app.use(express.json());
 
-const authRouter=require("../src/routes/auth");
-const profileRouter=require("../src/routes/profile");
-const requestRouter=require("../src/routes/requests");
-const userRouter=require("../src/routes/user")
+const authRouter = require("../src/routes/auth");
+const profileRouter = require("../src/routes/profile");
+const requestRouter = require("../src/routes/requests");
+const userRouter = require("../src/routes/user");
 
-app.use("/",authRouter);
-app.use("/",profileRouter);
-app.use("/",requestRouter);
-app.use("/",userRouter);
-
-
-
-
-
-
-
-
+app.use("/", authRouter);
+app.use("/", profileRouter);
+app.use("/", requestRouter);
+app.use("/", userRouter);
 
 // update the data from the user
 // app.patch("/userUpdate/:userId", async (req, res) => {
