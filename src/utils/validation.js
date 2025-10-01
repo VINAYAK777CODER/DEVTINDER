@@ -19,7 +19,7 @@ const validateEditProfileData=(req)=>{
     const data = req.body;
 
     // Allowed fields to update
-    const ALLOWED_UPDATES = ["skills", "photo_url", "about", "gender","age"];
+    const ALLOWED_UPDATES = ["firstName","lastName","skills", "photo_url", "about", "gender","age"];
     // Check if only allowed fields are being updated
 
     const isEditAllowed = Object.keys(data).every((key) =>

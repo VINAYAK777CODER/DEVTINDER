@@ -32,7 +32,7 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
     const loggedInUser = req.user;
     const dataToUpdate = req.body;
 
-    const allowedFields = ["skills", "photo_url", "about", "gender"];
+    const allowedFields = ["firstName","lastName","skills", "photo_url", "about", "gender","age"];
 
     // Validate update fields
     const isEditAllowed = validateEditProfileData(req);
@@ -41,7 +41,7 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
       return res.status(400).json({
         status: "error",
         message:
-          "Invalid fields for update. Only 'skills', 'photo_url', 'about', and 'gender' can be updated.",
+          "Invalid fields for update. Only 'skills', 'photo_url', 'about','age','firstName','lastName' and 'gender' can be updated.",
       });
     }
 
